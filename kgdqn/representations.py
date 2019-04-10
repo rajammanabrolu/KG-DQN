@@ -93,8 +93,6 @@ class StateNAction(object):
             visible_state = visible_state[2]
         dirs = ['north', 'south', 'east', 'west']
 
-        if len(visible_state) > 1:
-            visible_state = visible_state[2]
         self.visible_state = visible_state
         rules = []
         for sent in sent_tokenize(self.visible_state):
