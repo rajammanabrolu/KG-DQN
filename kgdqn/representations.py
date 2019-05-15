@@ -73,12 +73,12 @@ class StateNAction(object):
             visible_state = visible_state[2]
         self.visible_state = visible_state
         try:
-            for sent in sent_tokenize(visible_state):
-                for ov in call_stanford_openie(sent)['sentences']:
-                    triple = ov['openie']
-                    for tr in triple:
-                        h, r, t = tr['subject'], tr['relation'], tr['object']
-                        self.graph_state.add_edge(h, t, rel=r)
+            sents = call_stanford_openie(self.visible_state)['sentences']
+            for ov in sents:
+                triple = ov['openie']
+                for tr in triple:
+                    h, r, t = tr['subject'], tr['relation'], tr['object']
+                    self.graph_state.add_edge(h, t, rel=r)
 
         except:
             print(self.visible_state)
@@ -93,24 +93,24 @@ class StateNAction(object):
             visible_state = visible_state[2]
         dirs = ['north', 'south', 'east', 'west']
 
-        self.visible_state = visible_state
+        self.visible_state = str(visible_state)
         rules = []
-        for sent in sent_tokenize(self.visible_state):
-            # try:
-            # triple = callStanfordReq(sent)['sentences'][0]['openie']
-            for ov in call_stanford_openie(sent)['sentences']:
-                triple = ov['openie']
-                for tr in triple:
-                    h, r, t = tr['subject'].lower(), tr['relation'].lower(), tr['object'].lower()
+        
+        sents = call_stanford_openie(self.visible_state)['sentences']
 
-                    if h == 'we':
-                        h = 'you'
-                        if r == 'are in':
-                            r = "'ve entered"
+        for ov in sents:
+            triple = ov['openie']
+            for tr in triple:
+                h, r, t = tr['subject'].lower(), tr['relation'].lower(), tr['object'].lower()
 
-                    if h == 'it':
-                        break
-                    rules.append((h, r, t))
+                if h == 'we':
+                    h = 'you'
+                    if r == 'are in':
+                        r = "'ve entered"
+
+                if h == 'it':
+                    break
+                rules.append((h, r, t))
 
         room = ""
         room_set = False
