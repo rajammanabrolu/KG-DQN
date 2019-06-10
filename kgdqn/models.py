@@ -33,16 +33,16 @@ class KGDQN(nn.Module):
     def __init__(self, params, actions):
         super(KGDQN, self).__init__()
         self.params = params
-        pretrained_action_embs = torch.load(params['act_emb_init_file'])['state_dict']['embeddings']['weight']
 
         if self.params['qa_init']:
+            pretrained_action_embs = torch.load(params['act_emb_init_file'])['state_dict']['embeddings']['weight']
             self.action_emb = nn.Embedding.from_pretrained(pretrained_action_embs, freeze=False)
             self.action_drqa = ActionDrQA(params, pretrained_action_embs)
             self.state_gat = StateNetwork(actions, params, pretrained_action_embs)
         else:
             self.action_emb = nn.Embedding(params['vocab_size'], params['embedding_size'])
-            self.action_drqa = ActionDrQA(params)
-            self.state_gat = StateNetwork(actions, params)
+            self.action_drqa = ActionDrQA(params, self.action_emb.weight)
+            self.state_gat = StateNetwork(actions, params, self.action_emb.weight)
         self.action_enc = EncoderLSTM(params['vocab_size'], params['embedding_size'], params['hidden_size'],
                                       params['padding_idx'], params['dropout_ratio'],
                                       self.action_emb)  # , params['bidirectional'],
@@ -122,7 +122,7 @@ class StateNetwork(nn.Module):
         self.action_set = action_set
         self.gat = GAT(params['gat_emb_size'], 3, len(action_set), params['dropout_ratio'], 0.2, 1)
         if params['qa_init']:
-            self.pretrained_embeds = nn.Embedding.from_pretrained(self.pretrained_embeds)  # , freeze=False)
+            self.pretrained_embeds = nn.Embedding.from_pretrained(embeddings, freeze=False)
         else:
             self.pretrained_embeds = embeddings.new_tensor(embeddings.data)
         self.vocab_kge = self.load_vocab_kge()
@@ -152,14 +152,14 @@ class StateNetwork(nn.Module):
 
     def load_vocab_kge(self):
         ent = {}
-        with open('initialize_double/state/entity2id.txt', 'r') as f:
+        with open('initialize_double/state/entity2id.tsv', 'r') as f:
             for line in f:
                 e, eid = line.split('\t')
                 ent[int(eid.strip())] = e.strip()
         return ent
 
     def load_vocab(self):
-        vocab = eval(open('../w2id_double.txt', 'r').readline())
+        vocab = eval(open('../w2id.txt', 'r').readline())
         return vocab
 
     def forward(self, graph_rep):

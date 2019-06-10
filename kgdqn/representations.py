@@ -47,12 +47,12 @@ class StateNAction(object):
 
     def load_vocab_kge(self):
         ent = {}
-        with open('initialize/state/entity2id.txt', 'r') as f:
+        with open('initialize/state/entity2id.tsv', 'r') as f:
             for line in f:
                 e, eid = line.split('\t')
                 ent[e.strip()] = int(eid.strip())
         rel = {}
-        with open('initialize/state/relation2id.txt', 'r') as f:
+        with open('initialize/state/relation2id.tsv', 'r') as f:
             for line in f:
                 r, rid = line.split('\t')
                 rel[r.strip()] = int(rid.strip())

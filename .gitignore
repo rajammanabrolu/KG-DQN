@@ -4,7 +4,6 @@ kgdqn/__pycache__/
 kgdqn/trial*
 .idea/
 Games/
-old_expts/
 dqn/models/
 dqn/logs/
 dqn/plots/
@@ -18,3 +17,4 @@ kgdqn/neurips
 *.pt
 *.json
 *.txt
+*.tsv
